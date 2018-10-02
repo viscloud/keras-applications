@@ -201,18 +201,11 @@ def MobileNet(input_shape=None,
                              'alpha can be one of'
                              '`0.25`, `0.50`, `0.75` or `1.0` only.')
 
-        if rows != cols or rows not in [128, 160, 192, 224]:
-            if rows is None:
-                rows = 224
-                warnings.warn('MobileNet shape is undefined.'
-                              ' Weights for input shape '
-                              '(224, 224) will be loaded.')
-            else:
-                raise ValueError('If imagenet weights are being loaded, '
-                                 'input must have a static square shape '
-                                 '(one of (128, 128), (160, 160), '
-                                 '(192, 192), or (224, 224)). '
-                                 'Input shape provided = %s' % (input_shape,))
+        if rows is None:
+            rows = 224
+            warnings.warn('MobileNet shape is undefined.'
+                          ' Weights for input shape '
+                          '(224, 224) will be loaded.')
 
     if backend.image_data_format() != 'channels_last':
         warnings.warn('The MobileNet family of models is only available '
@@ -311,7 +304,11 @@ def MobileNet(input_shape=None,
                                                 weight_path,
                                                 cache_subdir='models')
         else:
-            model_name = 'mobilenet_%s_%d_tf_no_top.h5' % (alpha_text, rows)
+            if rows in [128, 160, 192, 224]:
+                weight_rows = rows
+            else:
+                weight_rows = 224
+            model_name = 'mobilenet_%s_%d_tf_no_top.h5' % (alpha_text, weight_rows)
             weight_path = BASE_WEIGHT_PATH + model_name
             weights_path = keras_utils.get_file(model_name,
                                                 weight_path,
